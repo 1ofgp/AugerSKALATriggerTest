@@ -19,16 +19,30 @@
 #define SD_CS     6  // CS for SD card, can use any pin
 
 Adafruit_ST7789 tft = Adafruit_ST7789(TFT_CS, TFT_DC, TFT_RST);
+
+const int timeY = 10;
+const int triggerY = 50;
+const int frequencyY = 90;
+const int TxStatusY = 140;
+const int haederX = 5;
+const int valueX = 120;
+const int headerOffsetY = 2;
+
 int count = 0;
 String TX_status; 
-
 uint32_t timeStart, timeElapsed;
+float frequency;
 
 void printTrigger();
 void generateTrigger(); 
 void checkTx();
 void drawfastlines(uint16_t color1, uint16_t color2);
-
+void drawStart();
+void drawTxStatus();
+void drawHeaders();
+void drawTime();
+void drawTrigger();
+void drawFrequency();
 
 void setup() {
   Serial.begin(115200);
@@ -44,25 +58,13 @@ void setup() {
 
   drawfastlines(ST77XX_RED, ST77XX_BLUE);
   delay(500);
-  tft.fillScreen(ST77XX_BLACK);
-  tft.setTextColor(ST77XX_MAGENTA);
-  tft.setTextSize(4);
-  tft.setCursor(35, 40);
-  tft.print("Auger SKALA"); 
-  tft.setCursor(25, 100);
-  tft.print("Trigger Test");
+  drawStart();
   delay(2000);
-  tft.fillScreen(ST77XX_BLACK);
-   tft.fillScreen(ST77XX_BLACK);
-  tft.setTextColor(ST77XX_BLUE);
-  tft.setTextSize(3);
-  tft.setCursor(5, 22);
-  tft.print("t[s]:");
-  tft.setTextColor(ST77XX_RED);
-  tft.setTextSize(3);
-  tft.setCursor(5, 72);
-  tft.print("Trig:");
+
+  drawHeaders();
+ 
   checkTx();
+  drawTxStatus();
   timeStart = millis();
 
 }
@@ -83,26 +85,13 @@ void loop() {
 
 
 void printTrigger() {
-  Serial.write('1');
-  tft.fillScreen(ST77XX_BLACK);
-  tft.setTextColor(ST77XX_BLUE);
-  tft.setTextSize(3);
-  tft.setCursor(5, 22);
-  tft.print("t[s]:");
-  tft.setTextSize(4);
-  tft.setCursor(100, 20);
-  tft.print(timeElapsed/1000);
-  tft.setTextColor(ST77XX_RED);
-  tft.setTextSize(3);
-  tft.setCursor(5, 72);
-  tft.print("Trig:");
-  tft.setTextSize(4);
-  tft.setCursor(100, 70);
-  tft.print(count);
-  tft.setTextColor(ST77XX_GREEN);
-  tft.setTextSize(4);
-  tft.setCursor(5, 120);
-  tft.print(TX_status);
+
+  Serial.write('1'); // for doTimestamps.py 
+  drawHeaders();
+  drawTime();
+  drawTrigger();
+  drawFrequency();
+  drawTxStatus();
   count ++;
  
 }
@@ -147,10 +136,8 @@ void checkTx(){
     TX_status = "TX ON";
   }
   else TX_status = "TX OFF";
-  tft.setTextColor(ST77XX_GREEN);
-  tft.setTextSize(4);
-  tft.setCursor(5, 120);
-  tft.print(TX_status);
+ 
+  drawTxStatus();
 
 }
 
@@ -163,3 +150,58 @@ void drawfastlines(uint16_t color1, uint16_t color2) {
     tft.drawFastVLine(x, 0, tft.height(), color2);
   }
 }
+
+void drawStart(){
+  tft.fillScreen(ST77XX_BLACK);
+  tft.setTextColor(ST77XX_MAGENTA);
+  tft.setTextSize(4);
+  tft.setCursor(35, 40);
+  tft.print("Auger SKALA"); 
+  tft.setCursor(25, 100);
+  tft.print("Trigger Test");
+}
+
+ void drawTxStatus(){
+  tft.setTextColor(ST77XX_GREEN);
+  tft.setTextSize(4);
+  tft.setCursor(haederX, TxStatusY);
+  tft.print(TX_status);
+ }
+
+ void drawHeaders(){
+  tft.fillScreen(ST77XX_BLACK);
+  tft.setTextColor(ST77XX_BLUE);
+  tft.setTextSize(3);
+  tft.setCursor(haederX, timeY + headerOffsetY);
+  tft.print("t[s] :");
+  tft.setTextColor(ST77XX_RED);
+  tft.setTextSize(3);
+  tft.setCursor(haederX,triggerY + headerOffsetY);
+  tft.print("Trig :");
+  tft.setTextColor(ST77XX_YELLOW);
+  tft.setTextSize(3);
+  tft.setCursor(haederX, frequencyY + headerOffsetY);
+  tft.print("f[Hz]:");
+ }
+
+ void drawTime(){
+  tft.setTextColor(ST77XX_BLUE);
+  tft.setTextSize(4);
+  tft.setCursor(valueX, timeY);
+  tft.print(timeElapsed/1000);
+ }
+
+ void drawTrigger(){
+  tft.setTextColor(ST77XX_RED);
+  tft.setTextSize(4);
+  tft.setCursor(valueX, triggerY);
+  tft.print(count);
+ }
+
+ void drawFrequency(){
+  tft.setTextColor(ST77XX_YELLOW);
+  tft.setTextSize(4);
+  tft.setCursor(valueX, frequencyY);
+  frequency = float(count/(timeElapsed/1000.0));
+  tft.print(frequency);
+ }
