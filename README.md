@@ -2,6 +2,7 @@
 - `src/testBoard.cpp` -- code for the Test Board (Teensy + Tx board + Rx board + TFT Screen)
 - `src/onlyTx.cpp` -- code for Teensy to be used ONLY as a "Trigger Generator" 
 - `src/onlyRx.cpp` -- code for Teensy to be used ONLY as a "Trigger Receiver/Printer" 
+- `src/TxPeriodArray` -- code for Teensy to be used ONLY as a "Trigger Generator" with predefined periods from `src\period....c` files;
 - `doTimestamps.py` -- to be used to study triggers info  produced by either Test Board or Teensy in "Trigger Receiver/Printer" mode
 
 Source file to compile is defined in `platformio.ini`
