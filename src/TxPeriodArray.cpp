@@ -7,7 +7,7 @@
 
 #define TAXI_EXT_TRIGGER  13
 
-#include "periodUUB_10min.c"
+#include "periodUUB_50Hzmean_10min.c"
 
 int i;
 int eventsNb = sizeof(periodArray)/sizeof(int);
